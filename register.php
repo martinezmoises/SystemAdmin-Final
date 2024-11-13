@@ -2,8 +2,9 @@
 // Include the database connection file
 require 'db.php';
 
-// Initialize the success message variable
+// Initialize success and error message variables
 $loginSucc = "";
+$registerError = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Retrieve and sanitize form data
@@ -23,9 +24,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ':username' => $username,
             ':password' => $password,
         ]);
-        $loginSucc =  "Registration successful!";
+        $loginSucc = "Registration successful!";
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
+        // Check if the error code is 23000 for duplicate entry
+        if ($e->getCode() == 23000) {
+            $registerError = "Username is already taken. Please choose a different username.";
+        } else {
+            $registerError = "An error occurred. Please try again.";
+        }
     }
 }
 ?>
@@ -72,10 +78,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <button class="sign" type="submit">Register Now</button>
             </form>
 
-            <!-- Display success message if the registration was successful -->
+            <!-- Display success or error message -->
             <?php if (!empty($loginSucc)): ?>
                 <div class="success-message">
                     <p><?php echo $loginSucc; ?></p>
+                </div>
+            <?php elseif (!empty($registerError)): ?>
+                <div class="error-message">
+                    <p><?php echo $registerError; ?></p>
                 </div>
             <?php endif; ?>
 
@@ -87,4 +97,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </body>
 
 </html>
-
