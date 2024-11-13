@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: . # Assuming Dockerfile is in the same directory
+    ports:
+      - 9000:80
+    depends_on:
+      - db # Ensure db starts before the server
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0 # Using official MySQL image
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "" # Root password (leave empty or specify one)
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # Allow empty password for root (or remove if using a password)
+      MYSQL_DATABASE: login_system # Database name (replace if needed)
+    volumes:
+      - db-data:/var/lib/mysql # Persist database data
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
